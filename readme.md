@@ -101,16 +101,16 @@ In this tutorial, you learn to:
 
     ```yaml
     pipelines:
-  custom:
-   custom-pipeline:
-    - step: 
-        name: Deploy to test
-        deployment: test
-        script:
-          - pipe: rupareddy765/deploy:master
-            variables: 
-                APP_LOCATION: $BITBUCKET_CLONE_DIR
-                API_TOKEN: $deployment_token
+      custom:
+       custom-pipeline:
+        - step: 
+            name: Deploy to test
+            deployment: test
+            script:
+              - pipe: rupareddy765/deploy:master
+                variables: 
+                    APP_LOCATION: $BITBUCKET_CLONE_DIR
+                    API_TOKEN: $deployment_token
     ```
 
     > [!NOTE]
