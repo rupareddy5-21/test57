@@ -1,6 +1,163 @@
-# Vanilla API App
+---
+title: "Tutorial: Publish Azure Static Web Apps with Bitbucket"
+description: Learn to use Bitbucket to publish Azure Static Web Apps.
+services: static-web-apps
+author: scubaninja
+ms.service: static-web-apps
+ms.topic:  tutorial
+ms.date: 08/17/2021
+ms.author: apedward
 
+---
 
-[Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/overview) allows you to easily build Javascript apps in minutes. Use this repo with the [Add an API to Static Web Apps with Azure Functions](https://docs.microsoft.com/azure/static-web-apps/add-api?tabs=vanilla-javascript) article to build and customize a new static site.
+# Tutorial: Publish Azure Static Web Apps with Bitbucket
 
-This repo is used as a starter for a _very basic_ web application with an API.
+This article demonstrates how to deploy to [Azure Static Web Apps](./overview.md) using [Bitbucket](https://bitbucket.org/).
+
+In this tutorial, you learn to:
+
+- Set up an Azure Static Web Apps site
+- Create an Bitbucket Pipeline to build and publish a static web app
+
+## Prerequisites
+
+- **Active Azure account:** If you don't have one, you can [create an account for free](https://azure.microsoft.com/free/).
+- **Bitbucket project:** If you don't have one, you can [create a project for free](https://azure.microsoft.com/pricing/details/devops/azure-devops-services/).
+  - Bitbucket includes **Pipelines**. If you need help getting started with Pipelines, see [Create your first pipeline](https://support.atlassian.com/bitbucket-cloud/docs/get-started-with-bitbucket-pipelines/).
+  - The Static Web App Pipeline Task currently only works on **Linux** machines. When running the pipeline mentioned below, please ensure it is running on a Linux VM.
+
+## Create a static web app in an Bitbucket
+
+  > [!NOTE]
+  > If you have an existing app in your repository, you may skip to the next section.
+
+1. Create/Import a new repository in Bitbucket.
+
+1. Select **Import repository** to begin importing a sample application.
+  
+    :::image type="content" source="media/publish-devops/devops-repo.png" alt-text="Bitbucket Repo":::
+
+1. In **Old repository URL**, enter `https://github.com/staticwebdev/vanilla-api.git`.
+
+1. Choose your project and name your repository.
+
+1. Select **Import repository**.
+
+## Create a static web app
+
+1. Navigate to the [Azure portal](https://portal.azure.com).
+
+1. Select **Create a Resource**.
+
+1. Search for **Static Web Apps**.
+
+1. Select **Static Web Apps**.
+
+1. Select **Create**.
+
+1. Create a new static web app with the following values.
+
+    :::image type="content" source="media/publish-devops/azure-portal-static-web-apps-devops.png" alt-text="Deployment details - other":::
+
+    | Setting | Value |
+    |---|---|
+    | Subscription | Your Azure subscription name. |
+    | Resource Group | Select an existing group name, or create a new one. |
+    | Name | Enter **myBitbucketApp**. |
+    | Hosting plan type | Select **Free**. |
+    | Region | Select a region closest to you. |
+    | Source | Select **Other**. |
+
+1. Select **Review + create**
+
+1. Select **Create**.
+
+1. Once the deployment is successful, select **Go to resource**.
+
+1. Select **Manage deployment token**.
+
+1. Copy the **deployment token** and paste the deployment token value into a text editor for use in another screen.
+
+    > [!NOTE]
+    > This value is set aside for now because you'll copy and paste more values in coming steps.
+
+    :::image type="content" source="media/publish-devops/deployment-token.png" alt-text="Deployment token":::
+
+## Create the Pipeline in Bitbucket
+
+1. Navigate to the repository in Bitbucket that was created earlier.
+
+2. Select **Pipelines** on the left menu.
+
+    :::image type="content" source="media/publish-devops/azdo-build.png" alt-text="Build pipeline":::
+
+3. Select **Create your first pipeline**.
+
+4. In the *Create your first pipeline* screen, select **Starter pipeline**.
+
+    :::image type="content" source="media/publish-devops/configure-pipeline.png" alt-text="Configure pipeline":::
+
+5. Copy the following YAML and replace the generated configuration in your pipeline with this code.
+
+    ```yaml
+    pipelines:
+  custom:
+   custom-pipeline:
+    - step: 
+        name: Deploy to test
+        deployment: test
+        script:
+          - pipe: rupareddy765/deploy:master
+            variables: 
+                APP_LOCATION: $BITBUCKET_CLONE_DIR
+                API_TOKEN: $deployment_token
+    ```
+
+    > [!NOTE]
+    > If you are not using the sample app, the values for `app_location`, `api_location`, and `output_location` need  to change to match the values in your application.
+
+    [!INCLUDE [static-web-apps-folder-structure](../../includes/static-web-apps-folder-structure.md)]
+
+    The `azure_static_web_apps_api_token` value is self managed and is manually configured.
+
+6. Select **Add variables**.
+
+7. Add a new variable in **Deployments** section.
+
+8. Name the variable **deployment_token** (matching the name in the workflow).
+
+9. Copy the deployment token that you previously pasted into a text editor.
+
+10. Paste in the deployment token in the _Value_ box.
+
+    :::image type="content" source="media/publish-devops/variable-token.png" alt-text="Variable token":::
+
+11. Make sure the **Secured** checkbox is selected.
+
+12. Select **Add**.
+
+13. Select **Commit file** to return to your pipelines tab.
+
+14. This will run the pipeline with name **Initial Bitbucket Pipelines configuration**.
+
+    :::image type="content" source="media/publish-devops/save-and-run.png" alt-text="Pipeline":::
+
+15. Once the deployment is successful, navigate to the Azure Static Web Apps **Overview** which includes links to the deployment configuration. Note how the _Source_ link now points to the branch and location of the Bitbucket repository.
+
+16. Select the **URL** to see your newly deployed website.
+
+    :::image type="content" source="media/publish-devops/deployment-location.png" alt-text="Deployment location":::
+
+## Clean up resources
+
+Clean up the resources you deployed by deleting the resource group.
+
+1. From the Azure portal, select **Resource group** from the left menu.
+2. Enter the resource group name in the **Filter by name** field.
+3. Select the resource group name you used in this tutorial.
+4. Select **Delete resource group** from the top menu.
+
+## Next steps
+
+> [!div class="nextstepaction"]
+> [Configure Azure Static Web Apps](./configuration.md)
